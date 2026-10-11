@@ -11,6 +11,13 @@ documentation.
 | **App 1** | React Native + Expo + TypeScript | `main` (this branch) | The stack the StoneCap/XCard team is actually using. |
 | **App 2** | Native Swift + SwiftUI | [`native-swiftui-stack`](../../tree/native-swiftui-stack) | Explored because I have a Mac and some teammates don't, a stack they can't easily try themselves. |
 
+## Demo video
+
+<video src="https://github.com/Alokothro/XCard-Research/releases/download/research-milestone-demo/xcard-research-demo.mov" controls width="400"></video>
+
+Walkthrough of both apps, ending with a live use of the Find Best Card
+recommendation flow.
+
 ## App 1: React Native + Expo (this branch)
 
 A real multi-screen app, not a "Hello World." Five tabs, matching the
