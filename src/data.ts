@@ -7,6 +7,18 @@ export type Category =
 
 export const CATEGORIES: Category[] = ["Dining", "Travel", "Groceries", "Gas", "Other"];
 
+// Demo-only Optimization Score for the Home screen (Requirements.md 4.2).
+// Not wired to the real calculation yet — this is the research prototype's
+// stand-in so the app's core "optimizer" identity is visible even before
+// that logic is built, matching the same numbers used elsewhere in this demo.
+export const DEMO_OPTIMIZATION = {
+  earned: 56,
+  possible: 84,
+  get percent() {
+    return Math.round((this.earned / this.possible) * 100);
+  },
+};
+
 export type RewardRule = {
   category: Category;
   rate: number; // e.g. 0.04 = 4%
