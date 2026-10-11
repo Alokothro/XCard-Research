@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, Switch } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, FlatList, Switch, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CARDS, Card } from "../data";
+import { fetchCardsFromSupabase } from "../remoteCards";
 import { spacing } from "../theme";
 import { useTheme } from "../ThemeContext";
 
@@ -45,14 +46,47 @@ function CardTile({ card }: { card: Card }) {
   );
 }
 
+type LoadState = "loading" | "live" | "offline";
+
 export default function WalletScreen() {
   const { colors } = useTheme();
+  const [cards, setCards] = useState<Card[]>(CARDS);
+  const [state, setState] = useState<LoadState>("loading");
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchCardsFromSupabase()
+      .then((remote) => {
+        if (cancelled) return;
+        // A fresh project with RLS enabled but no rows yet would also
+        // resolve successfully with an empty array; treat that the same as
+        // a failure so the user always sees real card data, not a blank list.
+        if (remote.length === 0) throw new Error("No cards returned");
+        setCards(remote);
+        setState("live");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        // Required 11.5 (Failure Safety): a failed request must never leave
+        // the user with a blank or broken screen, so we fall back to the
+        // bundled sample data instead of surfacing an error state here.
+        setCards(CARDS);
+        setState("offline");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.background }]} edges={["top"]}>
       <Text style={[styles.eyebrow, { color: colors.textMuted }]}>YOUR CARDS</Text>
-      <Text style={[styles.heading, { color: colors.textPrimary }]}>Wallet</Text>
+      <View style={styles.headingRow}>
+        <Text style={[styles.heading, { color: colors.textPrimary }]}>Wallet</Text>
+        <StatusPill state={state} />
+      </View>
       <FlatList
-        data={CARDS}
+        data={cards}
         keyExtractor={(c) => c.id}
         renderItem={({ item }) => <CardTile card={item} />}
         contentContainerStyle={{ padding: spacing.md }}
@@ -61,10 +95,33 @@ export default function WalletScreen() {
   );
 }
 
+function StatusPill({ state }: { state: LoadState }) {
+  const { colors } = useTheme();
+  if (state === "loading") {
+    return <ActivityIndicator size="small" color={colors.textMuted} style={{ marginRight: spacing.md }} />;
+  }
+  const label = state === "live" ? "LIVE · SUPABASE" : "OFFLINE · SAMPLE DATA";
+  const color = state === "live" ? colors.good : colors.warning;
+  return (
+    <View style={[styles.pill, { borderColor: color }]}>
+      <Text style={[styles.pillText, { color }]}>{label}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   eyebrow: { fontSize: 11, letterSpacing: 1, paddingHorizontal: spacing.md, paddingTop: spacing.md },
-  heading: { fontSize: 24, fontWeight: "600", paddingHorizontal: spacing.md, marginBottom: spacing.sm },
+  headingRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  heading: { fontSize: 24, fontWeight: "600" },
+  pill: { borderWidth: 1, borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 },
+  pillText: { fontSize: 9.5, fontWeight: "700", letterSpacing: 0.5 },
   card: {
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.08)",
