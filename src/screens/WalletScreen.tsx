@@ -1,31 +1,56 @@
-import React from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, FlatList, Switch } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CARDS, Card } from "../data";
-import { colors, spacing } from "../theme";
+import { spacing } from "../theme";
+import { useTheme } from "../ThemeContext";
+
+// The physical card face always renders dark, like a real wallet app,
+// regardless of the app's own light/dark theme.
+const CARD_FACE = "#15110c";
+const CARD_TEXT = "#F2EDE4";
+const CARD_NEUTRAL = "#B9B0A2";
 
 function CardTile({ card }: { card: Card }) {
+  const { colors } = useTheme();
+  const [enabled, setEnabled] = useState(true);
   const badge =
     card.rules.length > 0
       ? `${(card.rules[0].rate * 100).toFixed(0)}% · ${card.rules[0].category}`
       : `${(card.baseRate * 100).toFixed(0)}% · Everywhere`;
 
   return (
-    <View style={[styles.card, { borderLeftColor: card.accent }]}>
+    <View style={[styles.card, { backgroundColor: CARD_FACE, borderLeftColor: card.accent }]}>
       <View style={styles.cardTop}>
-        <Text style={styles.cardName}>{card.name}</Text>
-        <Text style={styles.cardNumber}>•••• {card.lastFour}</Text>
+        <View>
+          <Text style={styles.cardName}>{card.name}</Text>
+          {card.isDefault && (
+            <View style={[styles.defaultBadge, { backgroundColor: "rgba(224,179,110,0.18)" }]}>
+              <Text style={[styles.defaultBadgeText, { color: colors.bronze }]}>DEFAULT</Text>
+            </View>
+          )}
+        </View>
+        <Switch
+          value={enabled}
+          onValueChange={setEnabled}
+          trackColor={{ false: "#3D362A", true: colors.bronze }}
+          thumbColor="#F2EDE4"
+        />
       </View>
-      <Text style={[styles.cardBadge, { color: card.accent }]}>{badge}</Text>
+      <Text style={styles.cardNumber}>{"••••"} {card.lastFour}</Text>
+      <View style={[styles.cardBadge, { borderColor: "rgba(255,255,255,0.12)" }]}>
+        <Text style={[styles.cardBadgeText, { color: card.accent }]}>{badge}</Text>
+      </View>
     </View>
   );
 }
 
 export default function WalletScreen() {
+  const { colors } = useTheme();
   return (
-    <SafeAreaView style={styles.screen} edges={["top"]}>
-      <Text style={styles.heading}>Wallet</Text>
-      <Text style={styles.subheading}>Your saved cards</Text>
+    <SafeAreaView style={[styles.screen, { backgroundColor: colors.background }]} edges={["top"]}>
+      <Text style={[styles.eyebrow, { color: colors.textMuted }]}>YOUR CARDS</Text>
+      <Text style={[styles.heading, { color: colors.textPrimary }]}>Wallet</Text>
       <FlatList
         data={CARDS}
         keyExtractor={(c) => c.id}
@@ -37,35 +62,24 @@ export default function WalletScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  heading: {
-    fontSize: 24,
-    fontWeight: "600",
-    color: colors.textPrimary,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-  },
-  subheading: {
-    fontSize: 13,
-    color: colors.textMuted,
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.sm,
-  },
+  screen: { flex: 1 },
+  eyebrow: { fontSize: 11, letterSpacing: 1, paddingHorizontal: spacing.md, paddingTop: spacing.md },
+  heading: { fontSize: 24, fontWeight: "600", paddingHorizontal: spacing.md, marginBottom: spacing.sm },
   card: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
     borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
     borderLeftWidth: 4,
-    borderRadius: 16,
+    borderRadius: 20,
     padding: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  cardTop: {
-    flexDirection: "row",
+    marginBottom: spacing.md,
+    minHeight: 150,
     justifyContent: "space-between",
-    marginBottom: spacing.sm,
   },
-  cardName: { color: colors.textPrimary, fontSize: 16, fontWeight: "600" },
-  cardNumber: { color: colors.textSecondary, fontSize: 13 },
-  cardBadge: { fontSize: 12, fontWeight: "600" },
+  cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+  cardName: { color: CARD_TEXT, fontSize: 17, fontWeight: "600" },
+  defaultBadge: { alignSelf: "flex-start", borderRadius: 5, paddingVertical: 3, paddingHorizontal: 7, marginTop: 4 },
+  defaultBadgeText: { fontSize: 9, letterSpacing: 0.5, fontWeight: "700" },
+  cardNumber: { color: CARD_NEUTRAL, fontSize: 15, letterSpacing: 1.5, marginTop: spacing.md },
+  cardBadge: { alignSelf: "flex-start", borderWidth: 1, borderRadius: 7, paddingVertical: 5, paddingHorizontal: 9 },
+  cardBadgeText: { fontSize: 11, fontWeight: "600" },
 });
