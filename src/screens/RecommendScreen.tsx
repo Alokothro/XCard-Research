@@ -10,6 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 import { CARDS, CATEGORIES, Category, inferCategory } from "../data";
 import { recommendCard, Recommendation } from "../logic";
 import { spacing } from "../theme";
@@ -17,6 +18,7 @@ import { useTheme } from "../ThemeContext";
 
 export default function RecommendScreen() {
   const { colors } = useTheme();
+  const navigation = useNavigation();
   const [merchant, setMerchant] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<Category | null>(null);
@@ -52,6 +54,14 @@ export default function RecommendScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <Pressable
+            onPress={() => navigation.goBack()}
+            style={[styles.closeButton, { backgroundColor: colors.surfaceAlt }]}
+            hitSlop={8}
+          >
+            <Text style={{ color: colors.textSecondary, fontSize: 18, lineHeight: 18 }}>{"✕"}</Text>
+          </Pressable>
+
           <Text style={[styles.heading, { color: colors.textPrimary }]}>Quick Recommendation</Text>
           <Text style={[styles.subheading, { color: colors.textMuted }]}>Tell XCard where you're shopping.</Text>
 
@@ -147,6 +157,14 @@ export default function RecommendScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { padding: spacing.md, paddingBottom: spacing.xl },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
+  },
   heading: { fontSize: 24, fontWeight: "600" },
   subheading: { fontSize: 13, marginBottom: spacing.lg },
   label: { fontSize: 11, letterSpacing: 1, marginBottom: spacing.xs, marginTop: spacing.md },
