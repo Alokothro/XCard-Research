@@ -16,23 +16,46 @@ struct HomeView: View {
                     .font(.footnote)
                     .foregroundColor(palette.textMuted)
 
-                Button { showRecommend = true } label: {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Quick card pick").font(.headline).foregroundColor(palette.textPrimary)
-                            Text("Type a merchant, get the best card from your wallet")
-                                .font(.caption)
-                                .foregroundColor(palette.textMuted)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right").foregroundColor(palette.textMuted)
-                    }
-                    .padding()
-                    .background(palette.surface)
-                    .cornerRadius(14)
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.border))
+                VStack(spacing: 8) {
+                    Text("YOUR OPTIMIZATION")
+                        .font(.caption2)
+                        .tracking(1)
+                        .foregroundColor(palette.textMuted)
+                    ScoreRing(percent: DemoOptimization.percent, palette: palette)
+                    Text("$\(DemoOptimization.earned) of $\(DemoOptimization.possible) possible")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(palette.bronze)
+                    Text("this month \u{00b7} not wired to real data yet")
+                        .font(.caption2)
+                        .foregroundColor(palette.textMuted)
                 }
-                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
+                .padding(24)
+                .background(palette.surface)
+                .cornerRadius(20)
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(palette.border))
+
+                VStack(spacing: 8) {
+                    Button { showRecommend = true } label: {
+                        Text("$")
+                            .font(.system(size: 36, weight: .bold))
+                            .foregroundColor(Color(hex: "#14100A"))
+                            .frame(width: 88, height: 88)
+                            .background(palette.bronze)
+                            .clipShape(Circle())
+                            .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
+                    }
+                    .buttonStyle(.plain)
+                    Text("Find Best Card")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(palette.textPrimary)
+                    Text("Type a merchant, get the best card from your wallet")
+                        .font(.caption)
+                        .foregroundColor(palette.textMuted)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 12)
 
                 Text("WHAT THIS BUILD DEMONSTRATES")
                     .font(.caption2)
