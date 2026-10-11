@@ -107,9 +107,11 @@ const MERCHANT_CATEGORY_HINTS: Record<string, Category> = {
   "trader joe": "Groceries",
   kroger: "Groceries",
   publix: "Groceries",
+  "whole foods": "Groceries",
   shell: "Gas",
   chevron: "Gas",
   exxon: "Gas",
+  "home depot": "Other",
 };
 
 export function inferCategory(merchant: string): Category {
