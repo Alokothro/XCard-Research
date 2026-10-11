@@ -57,6 +57,7 @@ one-off palette, so this build matches the real XCard/Figma design.
 ```bash
 npm install
 npm run web    # or: npm run ios / npm run android
+npm test       # runs the 22 Jest unit tests
 ```
 
 ## Backend: PostgreSQL via Supabase
