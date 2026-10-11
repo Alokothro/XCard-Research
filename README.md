@@ -13,9 +13,8 @@ documentation.
 
 ## Demo video
 
-<video src="https://github.com/Alokothro/XCard-Research/releases/download/research-milestone-demo/xcard-research-demo.mov" controls width="400"></video>
-
-Walkthrough of both apps, ending with a live use of the Find Best Card
+[**Watch the Research Milestone demo**](https://github.com/Alokothro/XCard-Research/releases/tag/research-milestone-demo):
+walkthrough of both apps, ending with a live use of the Find Best Card
 recommendation flow.
 
 ## App 1: React Native + Expo (this branch)
