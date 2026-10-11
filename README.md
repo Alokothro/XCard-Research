@@ -1,19 +1,44 @@
 # XCard Research
 
-Individual Research Milestone sample app (CSCE 490/492), built to learn the technology stack chosen for the StoneCap/XCard capstone project: **React Native + Expo + TypeScript**.
+Individual Research Milestone sample app (CSCE 490/492). Two implementations
+of the same minimal feature — merchant input → inferred category → best-card
+recommendation — built in two different stacks, so the comparison is based on
+firsthand experience rather than just reading documentation.
 
-## What this demonstrates
+1. **`/` (root)** — React Native + Expo + TypeScript, the stack chosen for the StoneCap/XCard team project.
+2. **`native-swiftui/`** — native Swift + SwiftUI, explored because I have a Mac and teammates without one can't easily try this stack themselves.
+
+## What the Expo app demonstrates
 
 - A multi-screen app using **React Navigation** (bottom tabs), not a single "Hello World" view.
 - A real data model in TypeScript (`src/data.ts`): cards, reward rules, categories.
 - A real interactive flow (`src/screens/RecommendScreen.tsx`): the user types a merchant name, the app infers a spending category, the user can correct it, enters a purchase amount, and the app computes which saved card earns the best reward — showing the recommended card, the estimated dollar reward, and a plain-language reason.
 - The recommendation math itself (`src/logic.ts`) is a small, pure, independently testable function, mirroring the rule-based (non-AI) reward calculation the actual XCard app will use.
 
-## Running it
-
 ```bash
 npm install
 npm run web    # or: npm run ios / npm run android
+```
+
+## What the native SwiftUI app demonstrates
+
+Same feature, same sample data, built in Swift instead: `native-swiftui/Sources/XCardNative/`.
+
+- `Models.swift` — the same `Card`/`RewardRule`/`Category` shape as `data.ts`, as Swift `struct`s and `enum`s.
+- `RecommendationEngine.swift` — the same pure recommendation function as `logic.ts`.
+- `ContentView.swift` — the same merchant-input → auto-category → best-card UI, in SwiftUI.
+
+This runs as a native macOS window via Swift Package Manager (`swift run` from
+`native-swiftui/`) rather than in the iOS Simulator — hand-authoring a full
+Xcode iOS-simulator project file isn't reliably scriptable outside Xcode's own
+GUI project wizard, and macOS SwiftUI shares the same language, declarative
+view syntax (`@State`, view modifiers, `Button`/`TextField`/`VStack`), and
+general framework concepts as iOS SwiftUI, so it's a fair stand-in for what
+native iOS development with this framework actually feels like.
+
+```bash
+cd native-swiftui
+swift run
 ```
 
 ## Relationship to the team project
@@ -74,3 +99,38 @@ React Navigation can do this too, but it requires manually configuring a
 linking config object; Expo Router handles it by file convention with less
 room for a misconfigured route to drop a user on the wrong screen after they
 tap a sensitive link like a password reset.
+
+## Firsthand comparison: building the same feature twice
+
+After actually building the identical recommendation flow in both stacks,
+not just reading about them:
+
+- **State management felt nearly identical.** SwiftUI's `@State` and React's
+  `useState` solve the same problem the same way — a value change triggers a
+  re-render of whatever reads it. Someone who learns one picks up the other's
+  state model almost immediately.
+- **Styling was the biggest day-to-day difference.** React Native's
+  `StyleSheet.create` is a separate JS object referenced by `style={...}`;
+  SwiftUI styles inline as chained view modifiers (`.padding()`, `.background()`,
+  `.cornerRadius()`). SwiftUI's version reads faster once you're used to it,
+  but React Native's separation keeps large screens easier to scan.
+- **Swift's compiler caught more at build time.** The Swift version wouldn't
+  compile until every `Category` case was handled and every optional was
+  unwrapped; the TypeScript version is also strongly typed, but a few UI
+  states (like the disabled-button condition) were things I had to remember
+  to check manually rather than the compiler forcing it.
+- **Build/iterate loop:** `swift build` for this small app was ~6 seconds
+  cold; Metro's first bundle for the Expo app was ~5–6 seconds too, but Expo's
+  actual payoff is Fast Refresh updating a running app/phone instantly on
+  save, no restart. For a UI-heavy app built by a team iterating constantly on
+  screens, that matters more than either cold-build number.
+- **Packaging reality check:** the Expo app can genuinely run on both a
+  phone (Expo Go) and web with one codebase today. The SwiftUI app only runs
+  on this Mac — getting it onto an actual iPhone or an Android device at all
+  requires either Xcode's full iOS project tooling (iOS only, ever) or a
+  complete rewrite in Kotlin for Android. That gap is the real reason the
+  team isn't using it, not a knock on Swift as a language.
+
+None of this changes the recommendation above — React Native + Expo is still
+the right call for the team project — but it's now based on having written
+the same logic twice, not just a comparison table.
