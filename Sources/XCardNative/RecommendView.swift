@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct RecommendView: View {
+    @EnvironmentObject var themeManager: ThemeManager
+    var palette: ThemePalette { themeManager.palette }
+
     @State private var merchant: String = ""
     @State private var amountText: String = ""
     @State private var category: Category?
@@ -11,14 +14,14 @@ struct RecommendView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Quick Recommendation")
                     .font(.system(size: 24, weight: .semibold, design: .monospaced))
-                    .foregroundColor(.white)
+                    .foregroundColor(palette.textPrimary)
                 Text("Tell XCard where you're shopping.")
                     .font(.footnote)
-                    .foregroundColor(.gray)
+                    .foregroundColor(palette.textMuted)
 
                 Text("MERCHANT OR PURCHASE")
                     .font(.caption2)
-                    .foregroundColor(.gray)
+                    .foregroundColor(palette.textMuted)
                 TextField("Starbucks", text: $merchant)
                     .textFieldStyle(.roundedBorder)
                     .onChange(of: merchant) { _, newValue in
@@ -30,16 +33,17 @@ struct RecommendView: View {
 
                 if let category {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("AUTO-CATEGORIZED").font(.caption2).foregroundColor(.gray)
+                        Text("AUTO-CATEGORIZED").font(.caption2).foregroundColor(palette.textMuted)
                         Text("\(merchant.isEmpty ? "This purchase" : merchant) \u{2192} \(category.rawValue)")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(palette.textPrimary)
                         Text("Not right? Pick a different category below.")
                             .font(.caption)
-                            .foregroundColor(.gray)
+                            .foregroundColor(palette.textSecondary)
 
                         HStack {
                             ForEach(Category.allCases) { c in
+                                let active = c == category
                                 Button(c.rawValue) {
                                     self.category = c
                                     result = nil
@@ -47,19 +51,19 @@ struct RecommendView: View {
                                 .font(.caption)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
-                                .background(c == category ? Theme.bronze : Color.clear)
-                                .foregroundColor(c == category ? .black : .gray)
+                                .background(active ? palette.bronze : Color.clear)
+                                .foregroundColor(active ? Color(hex: "#14100A") : palette.textMuted)
                                 .clipShape(Capsule())
-                                .overlay(Capsule().stroke(Color.gray.opacity(0.4)))
+                                .overlay(Capsule().stroke(palette.border))
                             }
                         }
                     }
                     .padding()
-                    .background(Theme.surfaceAlt)
+                    .background(palette.surfaceAlt)
                     .cornerRadius(14)
                 }
 
-                Text("AMOUNT").font(.caption2).foregroundColor(.gray)
+                Text("AMOUNT").font(.caption2).foregroundColor(palette.textMuted)
                 TextField("25.00", text: $amountText)
                     .textFieldStyle(.roundedBorder)
                     .onChange(of: amountText) { _, _ in result = nil }
@@ -71,30 +75,30 @@ struct RecommendView: View {
                 .disabled(category == nil)
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(category == nil ? Theme.bronze.opacity(0.4) : Theme.bronze)
-                .foregroundColor(.black)
+                .background(category == nil ? palette.bronze.opacity(0.4) : palette.bronze)
+                .foregroundColor(Color(hex: "#14100A"))
                 .cornerRadius(14)
 
                 if let result {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("BEST MATCH").font(.caption2).foregroundColor(Theme.bronze)
+                        Text("BEST MATCH").font(.caption2).foregroundColor(palette.bronze)
                         Text(result.card.name)
                             .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(palette.textPrimary)
                         Text("Estimated reward: $\(String(format: "%.2f", result.estimatedReward))")
-                            .foregroundColor(Theme.bronze)
+                            .foregroundColor(palette.bronze)
                         Text(result.reason)
                             .font(.footnote)
-                            .foregroundColor(.gray)
+                            .foregroundColor(palette.textSecondary)
                     }
                     .padding()
-                    .background(Theme.surface)
+                    .background(palette.surface)
                     .cornerRadius(14)
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.bronze.opacity(0.6)))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.bronze.opacity(0.6)))
                 }
             }
             .padding(20)
         }
-        .background(Theme.background.ignoresSafeArea())
+        .background(palette.background.ignoresSafeArea())
     }
 }
