@@ -1,14 +1,10 @@
 import SwiftUI
 
-struct ContentView: View {
+struct RecommendView: View {
     @State private var merchant: String = ""
     @State private var amountText: String = ""
     @State private var category: Category?
     @State private var result: Recommendation?
-
-    let bronze = Color(red: 0.878, green: 0.702, blue: 0.431) // #E0B36E
-    let background = Color(red: 0.043, green: 0.039, blue: 0.031) // #0B0A08
-    let surface = Color(red: 0.090, green: 0.075, blue: 0.063) // #171310
 
     var body: some View {
         ScrollView {
@@ -35,7 +31,7 @@ struct ContentView: View {
                 if let category {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("AUTO-CATEGORIZED").font(.caption2).foregroundColor(.gray)
-                        Text("\(merchant.isEmpty ? "This purchase" : merchant) → \(category.rawValue)")
+                        Text("\(merchant.isEmpty ? "This purchase" : merchant) \u{2192} \(category.rawValue)")
                             .font(.headline)
                             .foregroundColor(.white)
                         Text("Not right? Pick a different category below.")
@@ -51,7 +47,7 @@ struct ContentView: View {
                                 .font(.caption)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
-                                .background(c == category ? bronze : Color.clear)
+                                .background(c == category ? Theme.bronze : Color.clear)
                                 .foregroundColor(c == category ? .black : .gray)
                                 .clipShape(Capsule())
                                 .overlay(Capsule().stroke(Color.gray.opacity(0.4)))
@@ -59,7 +55,7 @@ struct ContentView: View {
                         }
                     }
                     .padding()
-                    .background(surface)
+                    .background(Theme.surfaceAlt)
                     .cornerRadius(14)
                 }
 
@@ -75,32 +71,30 @@ struct ContentView: View {
                 .disabled(category == nil)
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(category == nil ? bronze.opacity(0.4) : bronze)
+                .background(category == nil ? Theme.bronze.opacity(0.4) : Theme.bronze)
                 .foregroundColor(.black)
                 .cornerRadius(14)
 
                 if let result {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("BEST MATCH").font(.caption2).foregroundColor(bronze)
+                        Text("BEST MATCH").font(.caption2).foregroundColor(Theme.bronze)
                         Text(result.card.name)
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.white)
                         Text("Estimated reward: $\(String(format: "%.2f", result.estimatedReward))")
-                            .foregroundColor(bronze)
+                            .foregroundColor(Theme.bronze)
                         Text(result.reason)
                             .font(.footnote)
                             .foregroundColor(.gray)
                     }
                     .padding()
-                    .background(surface)
+                    .background(Theme.surface)
                     .cornerRadius(14)
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(bronze.opacity(0.6)))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.bronze.opacity(0.6)))
                 }
             }
             .padding(20)
         }
-        .frame(minWidth: 380, minHeight: 560)
-        .background(background)
-        .preferredColorScheme(.dark)
+        .background(Theme.background.ignoresSafeArea())
     }
 }
