@@ -3,6 +3,7 @@ import SwiftUI
 struct RecommendView: View {
     @EnvironmentObject var themeManager: ThemeManager
     var palette: ThemePalette { themeManager.palette }
+    @Environment(\.dismiss) private var dismiss
 
     @State private var merchant: String = ""
     @State private var amountText: String = ""
@@ -12,6 +13,18 @@ struct RecommendView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(palette.textSecondary)
+                        .frame(width: 32, height: 32)
+                        .background(palette.surfaceAlt)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+
                 Text("Quick Recommendation")
                     .font(.system(size: 24, weight: .semibold, design: .monospaced))
                     .foregroundColor(palette.textPrimary)
