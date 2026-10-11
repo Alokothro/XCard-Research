@@ -19,11 +19,72 @@ A real multi-screen app, not a "Hello World":
 - A typed data model in TypeScript (`src/data.ts`): cards, reward rules, categories.
 - A real interactive flow (`src/screens/RecommendScreen.tsx`): type a merchant name, the app infers a spending category (correctable), enter a purchase amount, and it computes which saved card earns the best reward — showing the card, the estimated dollar reward, and a plain-language reason.
 - The recommendation math (`src/logic.ts`) is a small, pure, independently testable function — no AI does this arithmetic.
+- The Wallet screen (`src/screens/WalletScreen.tsx`) loads its cards from a real **PostgreSQL database hosted on Supabase**, not just hardcoded local data — see "Backend: PostgreSQL via Supabase" below.
+- 22 automated Jest unit tests (`src/*.test.ts`) and a GitHub Actions workflow that runs them on every push.
 
 ```bash
 npm install
 npm run web    # or: npm run ios / npm run android
 ```
+
+## Backend: PostgreSQL via Supabase
+
+The team's Requirements.md already commits to Node.js + Express + PostgreSQL
++ Supabase as the backend stack. App 1 exercises the database piece of that
+for real: `cards` and `reward_rules` are tables in an actual Postgres
+database (hosted free on Supabase), not hardcoded arrays. The Wallet screen
+fetches them live on load and shows a **LIVE · SUPABASE** or
+**OFFLINE · SAMPLE DATA** pill depending on whether that request succeeded —
+if the network call fails, it falls back to the bundled sample data instead
+of showing a broken screen, per Requirements.md 11.5 (Failure Safety).
+
+Schema (run once in the Supabase SQL editor to reproduce):
+
+```sql
+create table cards (
+  id bigint generated always as identity primary key,
+  name text not null,
+  last_four text not null,
+  base_rate numeric(5,4) not null,
+  is_default boolean not null default false
+);
+
+create table reward_rules (
+  id bigint generated always as identity primary key,
+  card_id bigint not null references cards(id) on delete cascade,
+  category text not null,
+  rate numeric(5,4) not null
+);
+
+alter table cards enable row level security;
+alter table reward_rules enable row level security;
+
+-- Sample-data prototype, no auth yet: readable by anyone holding the
+-- public anon/publishable key, same idea Requirements.md 11.3 extends once
+-- real user accounts exist (RLS scoped to auth.uid() instead of `true`).
+create policy "Public read access" on cards for select using (true);
+create policy "Public read access" on reward_rules for select using (true);
+```
+
+`src/supabase.ts` holds the client, created with the **publishable** key
+(Supabase's current name for what used to be called the `anon` key) — this
+key is designed to be safe in client-side code; it's Row Level Security, not
+key secrecy, that actually protects the data. `src/remoteCards.ts` queries
+both tables and maps the rows into the same `Card` shape the rest of the app
+already uses, so no other screen needed to change.
+
+**A deliberately different architecture than just copying a classmate's
+Express setup.** One teammate's research prototype built custom Express
+endpoints (`/cards`, `/recommend`) that just query Postgres and return JSON
+— that's exactly what Supabase already generates automatically from the
+schema (PostgREST), with RLS enforcing access at the database level instead
+of trusting each hand-written endpoint to filter correctly. So App 1 calls
+Supabase **directly** from the client for plain reads, and reserves actual
+custom server code for the one thing that genuinely requires a trusted
+backend: Plaid's token exchange, where the resulting `access_token` is a
+secret that must never reach the mobile client. Less code to write and
+maintain, while still exercising every piece of the stack the team already
+committed to.
 
 ## App 2 — Native Swift + SwiftUI
 
