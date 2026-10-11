@@ -10,6 +10,17 @@ public enum SpendCategory: String, CaseIterable, Identifiable {
     public var id: String { rawValue }
 }
 
+// Demo-only Optimization Score for the Home screen (Requirements.md 4.2).
+// Not wired to the real calculation yet — matches the same demo numbers
+// used in App 1 (Expo) so the two are directly comparable.
+public enum DemoOptimization {
+    public static let earned = 56
+    public static let possible = 84
+    public static var percent: Int {
+        Int((Double(earned) / Double(possible) * 100).rounded())
+    }
+}
+
 public struct RewardRule {
     public let category: SpendCategory
     public let rate: Double // e.g. 0.04 = 4%
