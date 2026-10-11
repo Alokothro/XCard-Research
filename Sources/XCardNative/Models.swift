@@ -91,8 +91,9 @@ enum SampleData {
     static let merchantHints: [String: Category] = [
         "starbucks": .dining, "olive garden": .dining, "chipotle": .dining,
         "delta": .travel, "marriott": .travel, "uber": .travel,
-        "trader joe": .groceries, "kroger": .groceries, "publix": .groceries,
+        "trader joe": .groceries, "kroger": .groceries, "publix": .groceries, "whole foods": .groceries,
         "shell": .gas, "chevron": .gas, "exxon": .gas,
+        "home depot": .other,
     ]
 
     static func inferCategory(from merchant: String) -> Category {
