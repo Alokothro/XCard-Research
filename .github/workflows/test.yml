@@ -1,0 +1,29 @@
+name: Tests
+
+on:
+  push:
+    branches: [native-swiftui-stack]
+  pull_request:
+    branches: [native-swiftui-stack]
+
+jobs:
+  xctest:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select latest available Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Pick an available iOS Simulator
+        id: sim
+        run: |
+          DEVICE=$(xcrun simctl list devices available iPhone -j \
+            | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(v['udid'] for k in d for v in d[k] if 'iPhone' in v['name']))")
+          echo "udid=$DEVICE" >> "$GITHUB_OUTPUT"
+
+      - name: Run XCTest suite
+        run: |
+          xcodebuild test \
+            -scheme XCardNative \
+            -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}"
