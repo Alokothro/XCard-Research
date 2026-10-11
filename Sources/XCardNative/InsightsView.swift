@@ -1,4 +1,5 @@
 import SwiftUI
+import XCardCore
 
 private struct DonutSlice: Shape {
     let startFraction: Double

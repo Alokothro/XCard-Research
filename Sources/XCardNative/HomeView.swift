@@ -1,4 +1,5 @@
 import SwiftUI
+import XCardCore
 
 struct HomeView: View {
     @EnvironmentObject var themeManager: ThemeManager

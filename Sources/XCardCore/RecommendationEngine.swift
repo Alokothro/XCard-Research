@@ -1,17 +1,17 @@
 import Foundation
 
-struct Recommendation {
-    let card: Card
-    let rate: Double
-    let estimatedReward: Double
-    let reason: String
+public struct Recommendation {
+    public let card: Card
+    public let rate: Double
+    public let estimatedReward: Double
+    public let reason: String
 }
 
 // Pure, independently-testable recommendation function, mirroring logic.ts
 // from the Expo build: no AI involved, just rule-based arithmetic against
 // each card's stored reward rules.
-enum RecommendationEngine {
-    static func recommendCard(from cards: [Card], category: Category, amount: Double) -> Recommendation? {
+public enum RecommendationEngine {
+    public static func recommendCard(from cards: [Card], category: SpendCategory, amount: Double) -> Recommendation? {
         guard !cards.isEmpty, amount > 0 else { return nil }
 
         var best: Recommendation?

@@ -1,4 +1,5 @@
 import SwiftUI
+import XCardCore
 
 // The physical card face always renders dark, like a real wallet app,
 // regardless of the app's own light/dark theme.

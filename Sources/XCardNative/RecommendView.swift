@@ -1,4 +1,5 @@
 import SwiftUI
+import XCardCore
 
 struct RecommendView: View {
     @EnvironmentObject var themeManager: ThemeManager
@@ -7,7 +8,7 @@ struct RecommendView: View {
 
     @State private var merchant: String = ""
     @State private var amountText: String = ""
-    @State private var category: Category?
+    @State private var category: SpendCategory?
     @State private var result: Recommendation?
 
     var body: some View {
@@ -55,7 +56,7 @@ struct RecommendView: View {
                             .foregroundColor(palette.textSecondary)
 
                         HStack {
-                            ForEach(Category.allCases) { c in
+                            ForEach(SpendCategory.allCases) { c in
                                 let active = c == category
                                 Button(c.rawValue) {
                                     self.category = c

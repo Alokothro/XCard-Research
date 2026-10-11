@@ -1,56 +1,84 @@
 import Foundation
 
-enum Category: String, CaseIterable, Identifiable {
+public enum SpendCategory: String, CaseIterable, Identifiable {
     case dining = "Dining"
     case travel = "Travel"
     case groceries = "Groceries"
     case gas = "Gas"
     case other = "Other"
 
-    var id: String { rawValue }
+    public var id: String { rawValue }
 }
 
-struct RewardRule {
-    let category: Category
-    let rate: Double // e.g. 0.04 = 4%
+public struct RewardRule {
+    public let category: SpendCategory
+    public let rate: Double // e.g. 0.04 = 4%
+
+    public init(category: SpendCategory, rate: Double) {
+        self.category = category
+        self.rate = rate
+    }
 }
 
-struct Card: Identifiable {
-    let id = UUID()
-    let name: String
-    let lastFour: String
-    let rules: [RewardRule]
-    let baseRate: Double
-    var isDefault: Bool = false
-    let earnedThisMonth: Double
+public struct Card: Identifiable {
+    public let id = UUID()
+    public let name: String
+    public let lastFour: String
+    public let rules: [RewardRule]
+    public let baseRate: Double
+    public var isDefault: Bool = false
+    public let earnedThisMonth: Double
 
-    func rate(for category: Category) -> Double {
+    public init(name: String, lastFour: String, rules: [RewardRule], baseRate: Double, isDefault: Bool = false, earnedThisMonth: Double) {
+        self.name = name
+        self.lastFour = lastFour
+        self.rules = rules
+        self.baseRate = baseRate
+        self.isDefault = isDefault
+        self.earnedThisMonth = earnedThisMonth
+    }
+
+    public func rate(for category: SpendCategory) -> Double {
         rules.first(where: { $0.category == category })?.rate ?? baseRate
     }
 
-    func hasDirectRule(for category: Category) -> Bool {
+    public func hasDirectRule(for category: SpendCategory) -> Bool {
         rules.contains(where: { $0.category == category })
     }
 }
 
-struct SpendSlice: Identifiable {
-    var id: String { category }
-    let category: String
-    let amount: Double
+public struct SpendSlice: Identifiable {
+    public var id: String { category }
+    public let category: String
+    public let amount: Double
+
+    public init(category: String, amount: Double) {
+        self.category = category
+        self.amount = amount
+    }
 }
 
-struct ActivityItem: Identifiable {
-    let id = UUID()
-    let merchant: String
-    let category: Category
-    let cardName: String
-    let amount: Double
-    let wasBestCard: Bool
-    let missedNote: String?
+public struct ActivityItem: Identifiable {
+    public let id = UUID()
+    public let merchant: String
+    public let category: SpendCategory
+    public let cardName: String
+    public let amount: Double
+    public let wasBestCard: Bool
+    public let missedNote: String?
+
+    public init(merchant: String, category: SpendCategory, cardName: String, amount: Double, wasBestCard: Bool, missedNote: String?) {
+        self.merchant = merchant
+        self.category = category
+        self.cardName = cardName
+        self.amount = amount
+        self.wasBestCard = wasBestCard
+        self.missedNote = missedNote
+    }
 }
 
-enum SampleData {
-    static let cards: [Card] = [
+public enum SampleData {
+    public static let cards: [Card] = [
         Card(name: "Amber Dining+", lastFour: "4821",
              rules: [RewardRule(category: .dining, rate: 0.04)], baseRate: 0.01,
              isDefault: true, earnedThisMonth: 18),
@@ -65,7 +93,7 @@ enum SampleData {
              earnedThisMonth: 7),
     ]
 
-    static let spendByCategory: [SpendSlice] = [
+    public static let spendByCategory: [SpendSlice] = [
         SpendSlice(category: "Travel", amount: 620),
         SpendSlice(category: "Dining", amount: 410),
         SpendSlice(category: "Groceries", amount: 340),
@@ -76,19 +104,19 @@ enum SampleData {
         SpendSlice(category: "Other", amount: 45),
     ]
 
-    static let recentActivity: [ActivityItem] = [
+    public static let recentActivity: [ActivityItem] = [
         ActivityItem(merchant: "Trader Joe's", category: .groceries, cardName: "EveryDay Cash", amount: 42.10, wasBestCard: true, missedNote: nil),
         ActivityItem(merchant: "Delta Air Lines", category: .travel, cardName: "Horizon Travel", amount: 310.00, wasBestCard: true, missedNote: nil),
         ActivityItem(merchant: "Olive Garden", category: .dining, cardName: "Flat Blue", amount: 58.20, wasBestCard: false, missedNote: "Missed 2% \u{2014} try Amber Dining+"),
         ActivityItem(merchant: "Shell", category: .gas, cardName: "Flat Blue", amount: 34.00, wasBestCard: true, missedNote: nil),
     ]
 
-    static let insightTipHighlight = "Try EveryDay Cash for groceries."
-    static let insightTipRest = "You used Flat Blue for 3 grocery runs this month and missed an estimated $9.60 in rotating-category rewards."
+    public static let insightTipHighlight = "Try EveryDay Cash for groceries."
+    public static let insightTipRest = "You used Flat Blue for 3 grocery runs this month and missed an estimated $9.60 in rotating-category rewards."
 
     // Minimal keyword -> category lookup, mirroring the merchant-to-category
     // inference in the Expo build's quick-recommendation flow.
-    static let merchantHints: [String: Category] = [
+    public static let merchantHints: [String: SpendCategory] = [
         "starbucks": .dining, "olive garden": .dining, "chipotle": .dining,
         "delta": .travel, "marriott": .travel, "uber": .travel,
         "trader joe": .groceries, "kroger": .groceries, "publix": .groceries, "whole foods": .groceries,
@@ -96,7 +124,7 @@ enum SampleData {
         "home depot": .other,
     ]
 
-    static func inferCategory(from merchant: String) -> Category {
+    public static func inferCategory(from merchant: String) -> SpendCategory {
         let key = merchant.trimmingCharacters(in: .whitespaces).lowercased()
         for (hint, category) in merchantHints where key.contains(hint) {
             return category
